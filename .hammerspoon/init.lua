@@ -31,6 +31,7 @@ local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function
 		if not ENGLISH_INPUTS[hs.keycodes.currentSourceID()] then
 			hs.keycodes.currentSourceID(INPUT_ENGLISH)
 		end
+		hs.alert.show("escape", 0.5)
 	end
 	return false -- 이벤트를 계속 전달 (ESC 동작은 유지됨)
 end)
