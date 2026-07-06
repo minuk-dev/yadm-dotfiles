@@ -27,13 +27,16 @@ local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function
 	-- print("KeyCode:", event:getKeyCode(), "Key:", hs.keycodes.map[event:getKeyCode()])
 	-- ESC 키 코드: 53
 	if event:getKeyCode() == 53 then
-		-- 입력소스 "설정"은 동기식이라 느리다. ESC 연타 시 매번 호출하면
-		-- 이벤트탭 콜백이 느려져 macOS 가 탭을 타임아웃으로 비활성화시켜 먹통이 된다.
-		-- 이미 영문이면 (빠른) 읽기만 하고 설정은 건너뛴다.
-		if not ENGLISH_INPUTS[hs.keycodes.currentSourceID()] then
-			hs.keycodes.currentSourceID(INPUT_ENGLISH)
-		end
-		hs.alert.show("escape", 0.5)
+		-- 입력소스 읽기/설정은 동기식이라 느리다. 이벤트탭 콜백 안에서 직접 하면
+		-- ESC 연타 시 콜백이 느려져 macOS 가 탭을 타임아웃으로 비활성화(먹통)시킨다.
+		-- => 콜백은 즉시 반환하고, 느린 작업은 비동기로 넘긴다.
+		hs.timer.doAfter(0, function()
+			-- 이미 영문이면 굳이 설정을 건드리지 않는다
+			if not ENGLISH_INPUTS[hs.keycodes.currentSourceID()] then
+				hs.keycodes.currentSourceID(INPUT_ENGLISH)
+				hs.alert.show("escape", 0.5)
+			end
+		end)
 	end
 	return false -- 이벤트를 계속 전달 (ESC 동작은 유지됨)
 end)
