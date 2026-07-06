@@ -13,9 +13,7 @@ function show_autohide()
 	end
 end
 
--- 주의: timer 도 eventtap 과 마찬가지로 전역(또는 GC 되지 않는 곳)에 보관해야 한다.
---       반환값을 버리면 GC 대상이 되어 얼마 뒤 주기 실행이 멈춘다.
-autohideTimer = hs.timer.doEvery(5, show_autohide)
+hs.timer.doEvery(5, show_autohide)
 
 function handleScreenEvent(event_type)
 	-- hs.alert.show('모니터 수 변경')

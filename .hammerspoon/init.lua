@@ -22,10 +22,7 @@ INPUT_KOREAN = getAvailableInput(KOREAN_INPUTS)
 
 require("modules.inputsource_aurora")
 
--- 주의: eventtap 은 반드시 전역(또는 GC 되지 않는 곳)에 보관해야 한다.
---       local 로 두면 init.lua 실행이 끝난 뒤 참조가 사라져 가비지 컬렉션되고,
---       얼마 지나 이벤트탭이 죽어서 "가끔/한참 뒤 안 되는" 증상이 생긴다.
-escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
 	-- 모든 키 코드 확인하는 방법: hs.inspect(hs.keycodes.map)
 	-- print("KeyCode:", event:getKeyCode(), "Key:", hs.keycodes.map[event:getKeyCode()])
 	-- ESC 키 코드: 53
