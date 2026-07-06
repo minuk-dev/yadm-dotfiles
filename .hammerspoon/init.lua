@@ -22,8 +22,7 @@ INPUT_KOREAN = getAvailableInput(KOREAN_INPUTS)
 
 require("modules.inputsource_aurora")
 
-local escWatcher
-escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
 	-- 모든 키 코드 확인하는 방법: hs.inspect(hs.keycodes.map)
 	-- print("KeyCode:", event:getKeyCode(), "Key:", hs.keycodes.map[event:getKeyCode()])
 	-- ESC 키 코드: 53
@@ -43,10 +42,3 @@ escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event
 end)
 
 escWatcher:start()
-
--- 안전장치: 혹시라도 이벤트탭이 비활성화되면(타임아웃 등) 자동으로 다시 켠다.
-escWatchdog = hs.timer.doEvery(2, function()
-	if escWatcher and not escWatcher:isEnabled() then
-		escWatcher:start()
-	end
-end)
