@@ -22,21 +22,31 @@ INPUT_KOREAN = getAvailableInput(KOREAN_INPUTS)
 
 require("modules.inputsource_aurora")
 
-local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+local escWatcher
+escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
 	-- 모든 키 코드 확인하는 방법: hs.inspect(hs.keycodes.map)
 	-- print("KeyCode:", event:getKeyCode(), "Key:", hs.keycodes.map[event:getKeyCode()])
 	-- ESC 키 코드: 53
 	if event:getKeyCode() == 53 then
-		-- 입력소스 전환은 비동기로 처리해 이벤트탭 콜백이 즉시 반환하도록 한다.
+		-- 콜백에서 무거운 일(입력소스 전환/alert 그리기)을 직접 하면 느려져서
+		-- 연타 몇 번 만에 macOS 가 이벤트탭을 타임아웃으로 꺼버린다(그 뒤로 먹통).
+		-- => 콜백은 즉시 반환하고, 느린 작업은 전부 비동기로 넘긴다.
 		hs.timer.doAfter(0, function()
 			-- 이미 영문이면 굳이 바꾸지 않는다 (연타 시 불필요한 전환 방지)
 			if not ENGLISH_INPUTS[hs.keycodes.currentSourceID()] then
 				hs.keycodes.currentSourceID(INPUT_ENGLISH)
+				hs.alert.show("escape", 0.5)
 			end
 		end)
-		hs.alert.show("escape", 0.5)
 	end
 	return false -- 이벤트를 계속 전달 (ESC 동작은 유지됨)
 end)
 
 escWatcher:start()
+
+-- 안전장치: 혹시라도 이벤트탭이 비활성화되면(타임아웃 등) 자동으로 다시 켠다.
+escWatchdog = hs.timer.doEvery(2, function()
+	if escWatcher and not escWatcher:isEnabled() then
+		escWatcher:start()
+	end
+end)
