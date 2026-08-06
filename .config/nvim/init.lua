@@ -1,2 +1,2 @@
-require("minukdev.core")
-require("minukdev.lazy")
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")

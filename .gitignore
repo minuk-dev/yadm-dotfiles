@@ -1,0 +1,6 @@
+**/.claude/settings.local.json
+
+# nvim (LazyVim) - machine-local state
+.config/nvim/.undo/
+.config/nvim/.repro/
+.config/nvim/.tests/
