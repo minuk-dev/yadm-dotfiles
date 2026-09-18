@@ -22,7 +22,9 @@ INPUT_KOREAN = getAvailableInput(KOREAN_INPUTS)
 
 require("modules.inputsource_aurora")
 
-local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+-- 주의: eventtap/timer 를 local 로 두면 청크 실행이 끝난 뒤 GC 에 수거되면서
+-- 조용히 죽는다. 반드시 전역으로 붙잡아 둔다.
+ESC_WATCHER = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
 	-- 모든 키 코드 확인하는 방법: hs.inspect(hs.keycodes.map)
 	-- print("KeyCode:", event:getKeyCode(), "Key:", hs.keycodes.map[event:getKeyCode()])
 	-- ESC 키 코드: 53
@@ -41,4 +43,13 @@ local escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function
 	return false -- 이벤트를 계속 전달 (ESC 동작은 유지됨)
 end)
 
-escWatcher:start()
+ESC_WATCHER:start()
+
+-- macOS 는 콜백이 느리거나 시스템 부하가 걸리면 이벤트탭을 임의로 꺼버리고,
+-- 한 번 꺼지면 스스로 살아나지 않는다. 15초마다 살아있는지 확인해서 되살린다.
+ESC_WATCHER_KEEPALIVE = hs.timer.doEvery(15, function()
+	if not ESC_WATCHER:isEnabled() then
+		print(os.date("%Y-%m-%d %H:%M:%S") .. " [esc] eventtap 이 꺼져 있어 다시 등록합니다")
+		ESC_WATCHER:start()
+	end
+end)

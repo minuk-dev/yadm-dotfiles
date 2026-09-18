@@ -13,7 +13,8 @@ function show_autohide()
 	end
 end
 
-hs.timer.doEvery(5, show_autohide)
+-- 타이머도 참조를 붙잡아 두지 않으면 GC 에 수거되어 멈춘다
+AURORA_TIMER = hs.timer.doEvery(5, show_autohide)
 
 function handleScreenEvent(event_type)
 	-- hs.alert.show('모니터 수 변경')
